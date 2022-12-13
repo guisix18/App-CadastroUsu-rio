@@ -1,15 +1,13 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
-  HttpCode,
   NotFoundException,
   Param,
   Post,
-  Res,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { response } from 'express';
 import { CreateUserBody } from './services/createuser.service';
 import { PrismaService } from './services/prisma.service';
 
@@ -45,6 +43,16 @@ export class AppController {
   @Post()
   async createUser(@Body() body: CreateUserBody) {
     const { name, email, password } = body;
+
+    const findUser = await this.prisma.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+
+    if (findUser) {
+      throw new BadRequestException('User already exists');
+    }
 
     await this.prisma.user.create({
       data: {
