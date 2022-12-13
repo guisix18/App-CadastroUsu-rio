@@ -17,7 +17,14 @@ export class AppController {
 
   @Get()
   listUsers() {
-    return this.prisma.user.findMany();
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+      },
+    });
   }
 
   @Get(':id')
@@ -26,15 +33,16 @@ export class AppController {
       where: {
         id: id,
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+      },
     });
 
     if (user) {
-      return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        createdAt: user.createdAt,
-      };
+      return user;
     }
 
     throw new NotFoundException('User not found');
